@@ -1,13 +1,15 @@
-const ioClient = require('socket.io-client');
+const io = require('socket.io-client');
 
-const socket = ioClient('http://localhost:3001/connect'); 
+const messagesSocket = io('http://localhost:3001/messages');
 
-socket.on('updateUserList', (userList) => {
-  console.log('Updated User List:', userList);
+messagesSocket.on('userMessages', (userMessages) => {
+  console.log('User Messages (Messages Namespace):', userMessages);
+
+  // Disconnect from the /messages namespace after receiving messages
+  messagesSocket.disconnect();
 });
 
-
+// Set a username and send a message in the /messages namespace
 const username = 'TestUser';
-socket.emit('setUsername', username);
-
-
+const message = 'Hello, world!';
+messagesSocket.emit('sendMessage', { username, message });
