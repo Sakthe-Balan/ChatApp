@@ -10,15 +10,23 @@ app.use(cors());
 
 app.use(express.static('public'));
 
-
+const connectedUsers = {};
 
 io.of('/connect').on('connection', (socket) => {
   console.log('User connected to /connect:', socket.id);
 
   socket.on('setUsername', (username) => {
-  console.log(`${username} set username in /connect namespace`);
-    });
+    connectedUsers[socket.id] = username;
 
+    io.of('/connect').emit('updateUserList', Object.values(connectedUsers));
+
+    console.log(`${username} set username in /connect namespace`);
+    
+    
+    console.log('Current User List:', Object.values(connectedUsers));
+  });
+
+  
 });
 
 const PORT = process.env.PORT || 3001;
