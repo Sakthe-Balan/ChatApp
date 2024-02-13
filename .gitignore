@@ -17,7 +17,7 @@ build/
 
 # Compiled files
 *.log
-*.json
+
 *.lock
 *.lock.gpg
 
