@@ -1,9 +1,12 @@
-import React from 'react'
+import React from 'react';
 
-export default function Chat() {
+const Chat: React.FC = () => {
   return (
-    <div>
+    <div className='poppins-regular'>
+      <p>Hello, this is the Chat component!</p>
       
     </div>
-  )
-}
+  );
+};
+
+export default Chat;
