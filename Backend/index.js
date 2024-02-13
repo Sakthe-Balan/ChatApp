@@ -27,7 +27,7 @@ connectNamespace.on('connection', (socket) => {
     console.log(`${username} set username in /connect namespace`);
 
     
-    socket.emit('userMessages', userMessages);
+    socket.emit('userMessages', userMessages.map(({ username, message }) => ({ username, message })));
 
     console.log('Current User List:', Object.values(connectedUsers));
   });
@@ -51,23 +51,12 @@ const messagesNamespace = io.of('/messages');
 
 messagesNamespace.on('connection', (socket) => {
   console.log('User connected to /messages:', socket.id);
-
-  socket.on('sendMessage', (message) => {
-    const username = connectedUsers[socket.id];
-
-   
-    userMessages.push({ username, message });
-
-    
-    messagesNamespace.emit('userMessages', userMessages);
-
-    
-
-   
+   socket.on('sendMessage', ({ username, message }) => {
+   userMessages.push({ username, message });
+    messagesNamespace.emit('userMessages', userMessages.map(({ username, message }) => ({ username, message })));
     console.log('User Messages:', userMessages);
   });
-
-  socket.on('disconnect', () => {
+   socket.on('disconnect', () => {
     console.log('User disconnected from /messages:', socket.id);
   });
 });
