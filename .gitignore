@@ -1,0 +1,28 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# Generated files
+npm-debug.log
+yarn-error.log
+
+# Optional: OS-specific files
+.DS_Store
+Thumbs.db
+
+# Build directory
+build/
+
+# Compiled files
+*.log
+*.json
+*.lock
+*.lock.gpg
+
+# Optional: Editor-specific files
+.vscode/
+.idea/
+*.sublime*
+*.swp
