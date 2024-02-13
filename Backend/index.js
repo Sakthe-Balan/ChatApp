@@ -26,7 +26,17 @@ io.of('/connect').on('connection', (socket) => {
     console.log('Current User List:', Object.values(connectedUsers));
   });
 
-  
+  socket.on('disconnect', () => {
+    const username = connectedUsers[socket.id];
+    delete connectedUsers[socket.id];
+
+    io.of('/connect').emit('updateUserList', Object.values(connectedUsers));
+
+    console.log(`${username} disconnected from /connect`);
+    
+    
+    console.log('Current User List:', Object.values(connectedUsers));
+  });
 });
 
 const PORT = process.env.PORT || 3001;
