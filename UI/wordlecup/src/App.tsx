@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const Home: React.FC = () => {
   const [name, setName] = useState<string>('');
+  const navigate = useNavigate();
 
  
 
@@ -11,7 +13,7 @@ const Home: React.FC = () => {
     try {
      localStorage.setItem('username', name);
      console.log(name);
-      window.location.href = '/chat';  
+     navigate('/chat');
     } catch (error) {
       console.error('Error starting chat:', error);
     }
