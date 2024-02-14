@@ -11,7 +11,7 @@ app.use(cors());
 const connectWss = new WebSocket.Server({ noServer: true });
 const messagesWss = new WebSocket.Server({ noServer: true });
 
-const connectedUsers = {};
+const connectedUsersMap = new Map(); 
 const userMessages = [];
 
 connectWss.on('connection', (socket) => {
@@ -20,31 +20,51 @@ connectWss.on('connection', (socket) => {
   socket.on('message', (data) => {
     const message = JSON.parse(data);
     if (message.type === 'setUsername') {
-      connectedUsers[socket._socket.remoteAddress] = message.username;
+      const userAddress = socket._socket.remoteAddress;
 
+     
+      if (!connectedUsersMap.has(userAddress)) {
+        connectedUsersMap.set(userAddress, {});
+      }
+
+      const userPort = socket._socket.remotePort;
+      const existingUser = connectedUsersMap.get(userAddress)[userPort];
+
+      if (existingUser && existingUser === message.username) {
+        
+        console.log(`Username ${message.username} already exists for ${userAddress}:${userPort}`);
+        
+        socket.send(JSON.stringify({ type: 'error', message: 'Username already exists. Choose a different one.' }));
+        return;
+      }
+
+      
+      connectedUsersMap.get(userAddress)[userPort] = message.username;
+
+      const userList = Object.values(connectedUsersMap.get(userAddress));
       connectWss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ type: 'updateUserList', userList: Object.values(connectedUsers) }));
+          client.send(JSON.stringify({ type: 'updateUserList', userList }));
         }
       });
 
       console.log(`${message.username} set username in /connect namespace`);
-      console.log('Current User List:', Object.values(connectedUsers));
+      console.log('Current User List:', userList);
     }
   });
 
   socket.on('close', () => {
-    const username = connectedUsers[socket._socket.remoteAddress];
-    delete connectedUsers[socket._socket.remoteAddress];
+    const userAddress = socket._socket.remoteAddress;
+    const userList = Object.values(connectedUsersMap.get(userAddress));
 
     connectWss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({ type: 'updateUserList', userList: Object.values(connectedUsers) }));
+        client.send(JSON.stringify({ type: 'updateUserList', userList }));
       }
     });
 
-    console.log(`${username} disconnected from /connect`);
-    console.log('Current User List:', Object.values(connectedUsers));
+    console.log('User disconnected from /connect:', socket._socket.remoteAddress);
+    console.log('Current User List:', userList);
     console.log('User Messages:', userMessages);
   });
 });
