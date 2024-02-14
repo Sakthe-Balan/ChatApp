@@ -18,7 +18,9 @@ const Sidebar: React.FC = () => {
         socket.emit('setUsername', userName);
         socket.on('updateUserList', (userList) => {
           localStorage.setItem('userList', JSON.stringify(userList));
+          setOnlineUsers(userList);
         });
+        
         socket.disconnect();
     }
   };
