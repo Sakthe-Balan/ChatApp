@@ -1,29 +1,41 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaUsers } from 'react-icons/fa';
-import io from 'socket.io-client';
 
 const Sidebar: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [OnlineUsers,setOnlineUsers ] =useState<string[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
-//   const onlineUsers:string[] = ['User1', 'User2', 'User3'];
+  useEffect(() => {
+    if (isSidebarOpen) {
+      const ws = new WebSocket('ws://localhost:3001/connect');
+      setSocket(ws);
+
+      const userName = localStorage.getItem('username');
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'setUsername', username: userName }));
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'updateUserList') {
+          setOnlineUsers(data.userList);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed');
+      };
+
+      return () => {
+        ws.close();
+      };
+    }
+  }, [isSidebarOpen]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
-    if(!isSidebarOpen) {
-        const socket = io('http://localhost:3001/connect');
-        
-        console.log(socket);
-        const userName = localStorage.getItem('username');
-        socket.emit('setUsername', userName);
-        socket.on('updateUserList', (userList) => {
-          localStorage.setItem('userList', JSON.stringify(userList));
-          setOnlineUsers(userList);
-        });
-        
-        socket.disconnect();
-    }
   };
 
   return (
@@ -36,7 +48,7 @@ const Sidebar: React.FC = () => {
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-2">Online Users</h2>
           <ul>
-            {OnlineUsers.map((user, index) => (
+            {onlineUsers.map((user, index) => (
               <li key={index} className="text-gray-600 mb-1">{user}</li>
             ))}
           </ul>
