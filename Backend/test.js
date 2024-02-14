@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const ws = new WebSocket('wss://wordle-j9ojz5y3c-sakthe-balan.vercel.app/connect');
+const ws = new WebSocket('wss://chat-app-2yij.onrender.com/connect');
 
 ws.on('open', () => {
   console.log('WebSocket connection opened');

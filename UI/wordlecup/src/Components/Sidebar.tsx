@@ -8,7 +8,7 @@ const Sidebar: React.FC = () => {
 
   useEffect(() => {
     if (isSidebarOpen) {
-      const ws = new WebSocket('ws://localhost:3001/connect');
+      const ws = new WebSocket('ws://chat-app-2yij.onrender.com/connect');
       setSocket(ws);
 
       const userName = localStorage.getItem('username');

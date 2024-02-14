@@ -8,7 +8,7 @@ const Chat: React.FC = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001/messages');
+    const ws = new WebSocket('ws://chat-app-2yij.onrender.com/messages');
     setSocket(ws);
 
     ws.onopen = () => {
