@@ -13,6 +13,7 @@ const Sidebar: React.FC = () => {
     setSidebarOpen(!isSidebarOpen);
     if(!isSidebarOpen) {
         const socket = io('http://localhost:3001/connect');
+        
         console.log(socket);
         const userName = localStorage.getItem('username');
         socket.emit('setUsername', userName);
