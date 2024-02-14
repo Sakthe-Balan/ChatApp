@@ -9,6 +9,14 @@ A lightweight real-time chat application built with React, Express, and WebSocke
 - **Responsive and user-friendly interface:** Enjoy an intuitive and responsive user interface.
 - **Built with React, Express, and WebSockets:** Utilizes modern technologies for efficient and effective communication.
 
+  ## Additional Features to Add
+
+- [ ] **Sounds for messages:** Enhance user experience with sound notifications for incoming messages.
+- [ ] **Different color and side for my message:** Implement a visual distinction for messages sent by the user.
+- [ ] **Persist messages using a database:** Store chat messages persistently using a database for historical reference.
+- [ ] **Chat rooms:** Introduce the concept of chat rooms to allow users to create and join different conversation spaces.
+
+
 ## Frontend
 
 ### Getting Started
