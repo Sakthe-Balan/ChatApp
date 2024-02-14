@@ -15,60 +15,59 @@ const connectedUsersMap = new Map();
 const userMessages = [];
 
 connectWss.on('connection', (socket) => {
-  console.log('User connected to /connect:', socket._socket.remoteAddress);
-
-  socket.on('message', (data) => {
-    const message = JSON.parse(data);
-    if (message.type === 'setUsername') {
-      const userAddress = socket._socket.remoteAddress;
-
-     
-      if (!connectedUsersMap.has(userAddress)) {
-        connectedUsersMap.set(userAddress, {});
-      }
-
-      const userPort = socket._socket.remotePort;
-      const existingUser = connectedUsersMap.get(userAddress)[userPort];
-
-      if (existingUser && existingUser === message.username) {
-        
-        console.log(`Username ${message.username} already exists for ${userAddress}:${userPort}`);
-        
-        socket.send(JSON.stringify({ type: 'error', message: 'Username already exists. Choose a different one.' }));
-        return;
-      }
-
-      
-      connectedUsersMap.get(userAddress)[userPort] = message.username;
-
-      const userList = Object.values(connectedUsersMap.get(userAddress));
-      connectWss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ type: 'updateUserList', userList }));
+    console.log('User connected to /connect:', socket._socket.remoteAddress);
+  
+    socket.on('message', (data) => {
+      const message = JSON.parse(data);
+      if (message.type === 'setUsername') {
+        const userAddress = socket._socket.remoteAddress;
+  
+        if (!connectedUsersMap.has(userAddress)) {
+          connectedUsersMap.set(userAddress, new Set());
         }
-      });
-
-      console.log(`${message.username} set username in /connect namespace`);
-      console.log('Current User List:', userList);
-    }
-  });
-
-  socket.on('close', () => {
-    const userAddress = socket._socket.remoteAddress;
-    const userList = Object.values(connectedUsersMap.get(userAddress));
-
-    connectWss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({ type: 'updateUserList', userList }));
+  
+        const userPort = socket._socket.remotePort;
+        const userSet = connectedUsersMap.get(userAddress);
+  
+        if (userSet.has(message.username)) {
+          console.log(`Username ${message.username} already exists for ${userAddress}:${userPort}`);
+          socket.send(JSON.stringify({ type: 'error', message: 'Username already exists. Choose a different one.' }));
+          return;
+        }
+  
+        userSet.add(message.username);
+  
+        const userList = Array.from(userSet);
+        connectWss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'updateUserList', userList }));
+          }
+        });
+  
+        console.log(`${message.username} set username in /connect namespace`);
+        console.log('Current User List:', userList);
       }
     });
-
-    console.log('User disconnected from /connect:', socket._socket.remoteAddress);
-    console.log('Current User List:', userList);
-    console.log('User Messages:', userMessages);
+  
+    socket.on('close', () => {
+      const userAddress = socket._socket.remoteAddress;
+      const userSet = connectedUsersMap.get(userAddress);
+  
+      if (userSet) {
+        const userList = Array.from(userSet);
+        connectWss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'updateUserList', userList }));
+          }
+        });
+  
+        console.log('User disconnected from /connect:', socket._socket.remoteAddress);
+        console.log('Current User List:', userList);
+        console.log('User Messages:', userMessages);
+      }
+    });
   });
-});
-
+  
 messagesWss.on('connection', (socket) => {
   console.log('User connected to /messages:', socket._socket.remoteAddress);
 
