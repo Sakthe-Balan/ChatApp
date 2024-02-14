@@ -1,11 +1,9 @@
 const WebSocket = require('ws');
 
-
-const ws = new WebSocket('ws://localhost:3001/connect');
+const ws = new WebSocket('wss://wordle-j9ojz5y3c-sakthe-balan.vercel.app/connect');
 
 ws.on('open', () => {
   console.log('WebSocket connection opened');
-
 
   const setUsernameMessage = { type: 'setUsername', username: 'TestUser' };
   ws.send(JSON.stringify(setUsernameMessage));
