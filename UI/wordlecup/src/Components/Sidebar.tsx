@@ -1,13 +1,26 @@
 
 import React, { useState } from 'react';
 import { FaUsers } from 'react-icons/fa';
+import io from 'socket.io-client';
 
 const Sidebar: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const onlineUsers = ['User1', 'User2', 'User3'];
+  const [OnlineUsers,setOnlineUsers ] =useState<string[]>([]);
+
+//   const onlineUsers:string[] = ['User1', 'User2', 'User3'];
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
+    if(!isSidebarOpen) {
+        const socket = io('http://localhost:3001/connect');
+        console.log(socket);
+        const userName = localStorage.getItem('username');
+        socket.emit('setUsername', userName);
+        socket.on('updateUserList', (userList) => {
+          localStorage.setItem('userList', JSON.stringify(userList));
+        });
+        socket.disconnect();
+    }
   };
 
   return (
@@ -20,7 +33,7 @@ const Sidebar: React.FC = () => {
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-2">Online Users</h2>
           <ul>
-            {onlineUsers.map((user, index) => (
+            {OnlineUsers.map((user, index) => (
               <li key={index} className="text-gray-600 mb-1">{user}</li>
             ))}
           </ul>

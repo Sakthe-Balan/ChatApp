@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
+
 
 const Home: React.FC = () => {
   const [name, setName] = useState<string>('');
 
+ 
+
   const handleStartChatClick = () => {
-    localStorage.setItem('userName', name);
-    alert(`Welcome, ${name}! Chat is ready.`);
-    window.location.href = '/chat';
+    try {
+     localStorage.setItem('username', name);
+     console.log(name);
+      window.location.href = '/chat';  
+    } catch (error) {
+      console.error('Error starting chat:', error);
+    }
   };
 
   return (

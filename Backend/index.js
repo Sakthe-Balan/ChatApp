@@ -4,9 +4,17 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 
 const app = express();
+
 const server = http.createServer(app);
-const io = socketIo(server);
 app.use(cors());
+const options = {
+    cors: {
+      origin: '*',
+    },
+  };
+  const io = require('socket.io')(server);
+
+
 
 app.use(express.static('public'));
 
@@ -25,9 +33,6 @@ connectNamespace.on('connection', (socket) => {
     connectNamespace.emit('updateUserList', Object.values(connectedUsers));
 
     console.log(`${username} set username in /connect namespace`);
-
-    
-    socket.emit('userMessages', userMessages.map(({ username, message }) => ({ username, message })));
 
     console.log('Current User List:', Object.values(connectedUsers));
   });
